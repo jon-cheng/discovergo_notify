@@ -6,24 +6,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import time
+from loguru import logger
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 TARGET_URL = "https://alamedafree.discoverandgo.net/"
 
+
 class Credentials:
-    """Class to manage user credentials."""
+    """Class to manage user credentials. Load env vars from .env file"""
 
     def __init__(self):
-        self.username = os.getenv("ePASSPatronNumber")
+        self.username = os.getenv("ePASSPatronNumber") 
         self.password = os.getenv("ePASSPatronPassword")
 
     def validate(self):
         """Validate that credentials are loaded."""
         if not self.username or not self.password:
-            raise ValueError("Missing credentials. Ensure ePASSPatronNumber and ePASSPatronPassword are set in the environment.")
+            raise ValueError(
+                "Missing credentials. Ensure ePASSPatronNumber and ePASSPatronPassword are set in the environment."
+            )
+
 
 class WebDriverFactory:
     """Factory class to create and configure a Selenium WebDriver."""
@@ -36,6 +40,7 @@ class WebDriverFactory:
             options.add_argument("--headless")  # Run in headless mode for ETLs
         options.add_argument(f"--window-size={window_size}")  # Set default window size
         return webdriver.Chrome(options=options)
+
 
 class Scraper:
     """Class to handle the scraping logic."""
@@ -75,14 +80,19 @@ class Scraper:
         """Closes the WebDriver."""
         self.driver.quit()
 
+
 class PageNavigator:
     pass
+
 
 class HTMLParser:
     pass
 
+
 # Usage
 if __name__ == "__main__":
+
+    logger.info("Starting the scraping process...")
 
     credentials = Credentials()
     credentials.validate()
@@ -94,8 +104,10 @@ if __name__ == "__main__":
     try:
         driver = scraper.start()
 
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        attractions = soup.find_all('span', class_='ePASSAttractionName')
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+
+        # current attractions
+        attractions = soup.find_all("span", class_="ePASSAttractionName")
 
         # Filter and print elements that match the specific text
         for attraction in attractions:
@@ -111,5 +123,3 @@ if __name__ == "__main__":
     finally:
         # Close the driver
         scraper.close()
-
-    
